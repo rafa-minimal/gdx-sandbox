@@ -1,6 +1,7 @@
 package com.minimal.sandbox
 
 import com.badlogic.gdx.Game
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.Screen
 import com.minimal.gdx.justPressed
@@ -23,6 +24,9 @@ class SandboxMain : Game() {
         }
         if(Keys.R.justPressed()) {
             setScreen(screens[currentScreen])
+        }
+        if(Keys.ESCAPE.justPressed()) {
+            Gdx.app.exit()
         }
     }
 

@@ -8,11 +8,9 @@ import com.minimal.gdx.rotateRight
 import com.minimal.utils.FloatCircularBuffer
 import ktx.math.vec2
 
-class Tail(val tex: TextureRegion) {
-    val maxPointsNumber = 60
-    val fadeFactor = 0.8f
-    val tailWidth = 1f
+class Tail(val tex: TextureRegion, val tailWidth: Float, maxSegmentsNumber: Int) {
     val lastPoint = vec2()
+    val lastDirection = vec2()
     val lastPointLeft = vec2()
     val lastPointRight = vec2()
     var hasLastPoint = false
@@ -28,7 +26,7 @@ class Tail(val tex: TextureRegion) {
     // max segments
     // segment = 4 vertices
     // vertex = 6 values
-    private val vertices = FloatCircularBuffer(maxPointsNumber * 4 * POINTS_PER_VERT)
+    private val vertices = FloatCircularBuffer(maxSegmentsNumber * 4 * POINTS_PER_VERT)
 
     private val tmp = vec2()
 
@@ -47,102 +45,48 @@ class Tail(val tex: TextureRegion) {
             vertices.push(v2)
 
             tmp.set(pos).sub(lastPoint).nor()
+            val flip = lastDirection.dot(tmp) < 0f
+            lastDirection.set(tmp)
             tmp.rotateRight().scl(tailWidth/2f)
 
             lastPointLeft.set(pos.x - tmp.x, pos.y - tmp.y)
             lastPointRight.set(pos.x + tmp.x, pos.y + tmp.y)
 
-            vertices.push(pos.x - tmp.x)
-            vertices.push(pos.y - tmp.y)
+            val sign = if (flip) -1f else 1f
+            vertices.push(pos.x - sign*tmp.x)
+            vertices.push(pos.y - sign*tmp.y)
             vertices.push(white)
             vertices.push(u2)
             vertices.push(v2)
 
-            vertices.push(pos.x + tmp.x)
-            vertices.push(pos.y + tmp.y)
+            vertices.push(pos.x + sign*tmp.x)
+            vertices.push(pos.y + sign*tmp.y)
             vertices.push(white)
             vertices.push(u2)
-            vertices.push(v2)
+            vertices.push(v)
         } else {
             lastPointLeft.set(pos)
             lastPointRight.set(pos)
-            /*vertices.push(pos.x)
-            vertices.push(pos.y)
-            vertices.push(white)
-            vertices.push(u)
-            vertices.push(v)
-
-            vertices.push(pos.x)
-            vertices.push(pos.y)
-            vertices.push(white)
-            vertices.push(u)
-            vertices.push(v2)*/
             hasLastPoint = true
         }
         lastPoint.set(pos)
     }
 
-    /*var x = 0f
-    val step = 0.1f
-
-    fun add(pos: Vector2, alph: Float) {
-        vertices.push(x)
-        vertices.push(10f)
-        vertices.push(white)
-        vertices.push(u)
-        vertices.push(v)
-
-        vertices.push(x)
-        vertices.push(11f)
-        vertices.push(white)
-        vertices.push(u)
-        vertices.push(v2)
-
-        vertices.push(x+step)
-        vertices.push(11f)
-        vertices.push(white)
-        vertices.push(u2)
-        vertices.push(v2)
-
-        vertices.push(x+step)
-        vertices.push(10f)
-        vertices.push(white)
-        vertices.push(u2)
-        vertices.push(v)
-
-        x+=step
-    }*/
-
     fun breakTail() {
         hasLastPoint = false
     }
 
-    fun update(timeStepSec: Float) {
-        /*for (i in 0 until alpha.size()) {
-            alpha[i] = alpha[i]*(1 - fadeFactor * timeStepSec)
-        }*/
-        for (i in 0 until vertices.size()) {
-            vertices[i+3] -= 1f/60f
-        }
-    }
-
     fun draw(batch: SpriteBatch) {
+        // update alpha
+        for (i in 0 until vertices.size() / POINTS_PER_VERT) {
+            vertices[i*POINTS_PER_VERT+2] = Color.toFloatBits(1f, 1f, 1f, i.toFloat() / vertices.size())
+        }
+
         var count = Math.min(vertices.array.size - vertices.head, vertices.size())
         batch.draw(tex.texture, vertices.array, vertices.head, count)
         count = vertices.size() - count
         if(count > 0) {
             batch.draw(tex.texture, vertices.array, 0, count)
         }
-
-        //batch.draw(tex.texture, vertices.array, 0, vertices.size())
-
-        /*for (i in 0 until alpha.size()) {
-            batch.setColor(1f, 1f, 1f, alpha[i])
-            batch.draw(tex, posX[i], posY[i],
-                    0f, 0f,
-                    length[i], tailWidth,
-                    1f, 1f,
-                    angle[i])
-        }*/
     }
 }
