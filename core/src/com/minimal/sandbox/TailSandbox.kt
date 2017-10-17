@@ -12,11 +12,10 @@ import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody
 import com.badlogic.gdx.physics.box2d.World
 import com.minimal.camera.WorldCamera
+import com.minimal.fx.SnakeTail
+import com.minimal.fx.FadingTail
 import com.minimal.fx.Tail
-import com.minimal.gdx.getTouchPos
-import com.minimal.gdx.justPressed
-import com.minimal.gdx.render
-import com.minimal.gdx.rnd
+import com.minimal.gdx.*
 import ktx.box2d.body
 import ktx.math.vec2
 
@@ -38,10 +37,16 @@ class TailSandbox : ScreenAdapter() {
     lateinit var solidRegion: TextureRegion
 
     val balls = ArrayList<Ball>()
-    lateinit var mouseTail: Tail
+    lateinit var mouseTail: SnakeTail
 
-    inner class Ball(val radius: Float, length: Int = 60) {
-        val tail = Tail(rnd(gradientRegion, solidRegion), radius, length)
+    inner class Ball(val radius: Float, length: Int = 60, snake: Boolean) {
+        val tail: Tail
+        init {
+            if (snake)
+                tail = SnakeTail(rnd(gradientRegion, solidRegion), radius, length)
+            else
+                tail = FadingTail(rnd(gradientRegion, solidRegion), radius, length)
+        }
         val ball = world.body(DynamicBody) {
             linearVelocity.rnd(15f)
             position.rnd(20f)
@@ -68,7 +73,7 @@ class TailSandbox : ScreenAdapter() {
         solidTex = Texture("solid_tail.png")
         solidRegion = TextureRegion(solidTex)
 
-        mouseTail = Tail(gradientRegion, 1f, 60)
+        mouseTail = SnakeTail(solidRegion, 1f, 60)
 
         world = World(vec2(0f, -10f), false)
 
@@ -81,7 +86,7 @@ class TailSandbox : ScreenAdapter() {
         }
 
         repeat(5) {
-            balls.add(Ball(rnd(0.5f, 1.5f), rnd(10, 120)))
+            balls.add(Ball(rnd(0.5f, 1.5f), rnd(10, 120), rndbool()))
         }
     }
 
