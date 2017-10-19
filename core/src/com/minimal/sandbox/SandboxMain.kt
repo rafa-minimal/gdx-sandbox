@@ -5,16 +5,24 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.Screen
 import com.minimal.gdx.justPressed
-import java.util.*
 
 class SandboxMain : Game() {
     var currentScreen = 0
-    val screens = ArrayList<Screen>()
+
+    private fun nextScreen() : Screen {
+        currentScreen++
+        when (currentScreen) {
+            1 -> return TailSandbox()
+            2 -> return ActorsSandbox()
+            else -> {
+                currentScreen = 0
+                return nextScreen()
+            }
+        }
+    }
 
     override fun create() {
-        screens.add(TailSandbox())
-
-        setScreen(screens[currentScreen])
+        setScreen(nextScreen())
     }
 
     override fun render() {
@@ -23,7 +31,8 @@ class SandboxMain : Game() {
             setScreen(nextScreen())
         }
         if(Keys.R.justPressed()) {
-            setScreen(screens[currentScreen])
+            currentScreen--
+            setScreen(nextScreen())
         }
         if(Keys.ESCAPE.justPressed()) {
             Gdx.app.exit()
@@ -38,14 +47,5 @@ class SandboxMain : Game() {
     override fun dispose() {
         super.dispose()
         Ctx.dispose()
-    }
-
-    private fun nextScreen(): Screen {
-        currentScreen = (currentScreen + 1) % screens.size
-        /*currentScreen++
-        if (currentScreen >= screens.size) {
-            currentScreen = 0
-        }*/
-        return screens[currentScreen]
     }
 }

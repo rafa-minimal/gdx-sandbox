@@ -25,19 +25,19 @@ class TailSandbox : ScreenAdapter() {
 
     val camera = WorldCamera(worldSize, worldSize)
 
-    lateinit var world: World
+    var world = World(vec2(0f, -10f), false)
     lateinit var ball: Body
 
     // Gradient tail
-    lateinit var gradientTex: Texture
-    lateinit var gradientRegion: TextureRegion
+    var gradientTex = Texture("gradient_tail.png")
+    var gradientRegion = TextureRegion(gradientTex)
 
     // Solid tail (alpha = 1)
-    lateinit var solidTex: Texture
-    lateinit var solidRegion: TextureRegion
+    var solidTex = Texture("solid_tail.png")
+    var solidRegion = TextureRegion(solidTex)
 
     val balls = ArrayList<Ball>()
-    lateinit var mouseTail: SnakeTail
+    var mouseTail = SnakeTail(solidRegion, 1f, 60)
 
     inner class Ball(val radius: Float, length: Int = 60, snake: Boolean) {
         val tail: Tail
@@ -66,17 +66,7 @@ class TailSandbox : ScreenAdapter() {
         }
     }
 
-    override fun show() {
-        gradientTex = Texture("gradient_tail.png")
-        gradientRegion = TextureRegion(gradientTex)
-
-        solidTex = Texture("solid_tail.png")
-        solidRegion = TextureRegion(solidTex)
-
-        mouseTail = SnakeTail(solidRegion, 1f, 60)
-
-        world = World(vec2(0f, -10f), false)
-
+    init {
         val s = worldSize / 2
         world.body {
             chain(vec2(-s, -s), vec2(-s, s), vec2(s, s), vec2(s, -s), vec2(-s, -s)) {
@@ -93,6 +83,7 @@ class TailSandbox : ScreenAdapter() {
     override fun hide() {
         world.dispose()
         gradientTex.dispose()
+        solidTex.dispose()
         balls.clear()
     }
 
