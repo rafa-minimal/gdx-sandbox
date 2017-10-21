@@ -3,38 +3,50 @@ package com.minimal.sandbox
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
+import com.badlogic.gdx.Preferences
 import com.badlogic.gdx.Screen
 import com.minimal.gdx.justPressed
+import java.lang.Exception
 
 class SandboxMain : Game() {
     var currentScreen = 0
+    lateinit var prefs: Preferences
 
-    private fun nextScreen() : Screen {
+    val screens: Array<() -> Screen> = arrayOf(
+            { TailSandbox() },
+            { ActorsSandbox() },
+            { DistanceFieldFontSandbox() }
+    )
+
+    fun nextScreen() : Screen {
         currentScreen++
-        when (currentScreen) {
-            1 -> return TailSandbox()
-            2 -> return ActorsSandbox()
-            else -> {
-                currentScreen = 0
-                return nextScreen()
-            }
+        if (currentScreen >= screens.size) {
+            currentScreen = 0
         }
+        prefs.putInteger("last-screen", currentScreen)
+        prefs.flush()
+        return screens[currentScreen]()
     }
 
     override fun create() {
-        setScreen(nextScreen())
+        prefs = Gdx.app.getPreferences("GdxSandbox")
+        currentScreen = prefs.getInteger("last-screen", 0)
+        if (currentScreen >= screens.size) {
+            currentScreen = 0
+        }
+        setScreen(screens[currentScreen]())
     }
 
     override fun render() {
         super.render()
-        if(Keys.TAB.justPressed()) {
+        if (Keys.TAB.justPressed()) {
             setScreen(nextScreen())
         }
-        if(Keys.R.justPressed()) {
+        if (Keys.R.justPressed()) {
             currentScreen--
             setScreen(nextScreen())
         }
-        if(Keys.ESCAPE.justPressed()) {
+        if (Keys.ESCAPE.justPressed()) {
             Gdx.app.exit()
         }
     }
