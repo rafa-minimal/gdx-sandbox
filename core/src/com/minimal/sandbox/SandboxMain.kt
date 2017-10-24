@@ -6,7 +6,6 @@ import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.Preferences
 import com.badlogic.gdx.Screen
 import com.minimal.gdx.justPressed
-import java.lang.Exception
 
 class SandboxMain : Game() {
     var currentScreen = 0
@@ -15,10 +14,11 @@ class SandboxMain : Game() {
     val screens: Array<() -> Screen> = arrayOf(
             { TailSandbox() },
             { ActorsSandbox() },
-            { DistanceFieldFontSandbox() }
+            { DistanceFieldFontSandbox() },
+            { MenuScreenPortrait() }
     )
 
-    fun nextScreen() : Screen {
+    fun nextScreen(): Screen {
         currentScreen++
         if (currentScreen >= screens.size) {
             currentScreen = 0
