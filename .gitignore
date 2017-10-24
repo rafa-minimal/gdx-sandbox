@@ -112,3 +112,7 @@ gradle-app.setting
 ## OS Specific
 .DS_Store
 Thumbs.db
+
+# atlas.atlas i atlas.png - generujemy z /images
+/android/assets/atlas.atlas
+/android/assets/atlas.png
